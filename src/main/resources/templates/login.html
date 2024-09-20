@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"></meta>
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css"
+	integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B"
+	crossorigin="anonymous">
+
+<title>Login</title>
+</head>
+<body class="text-center">
+	<div class="login align-items-center py-5">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-9 col-lg-8 mx-auto">
+					<h3 class="login-heading my-4">ログイン</h3>
+					<form action="login" method="post">
+						<div th:if="${#arrays.length(#fields.detailedErrors())} > 0"
+							class="row">
+							<div class="col-md-12 m-3">
+								<div class="p-3 mb-2 bg-danger text-white">
+									<div th:each="error : ${#fields.detailedErrors()}">
+										<span th:text="${error.message}" />
+									</div>
+								</div>
+							</div>
+						</div>
+						<div th:if="${errorMsg!=null}">
+							<font color="red"><div><span th:text="${errorMsg}"></span>
+							</div></font>
+							<br>
+						</div>
+						<div th:if="${addMsg!=null}">
+							<div><span th:text="${addMsg}"></span>
+							</div>
+							<br>
+						</div>
+						<div class="form-label-group">
+							<label for="name">名前</label> <input type="text" id="name"
+								name="name" class="form-control" maxlength="20"
+								required="required">
+						</div>
+						<div class="form-label-group">
+							<label for="pass">パスワード</label> <input type="password" id="pass"
+								name="pass" class="form-control" maxlength="20"
+								required="required">
+						</div>
+						<br>
+						<button
+							class="btn btn-lg btn-primary btn-block btn-login font-weight-bold mb-2"
+							type="submit">ログイン</button>
+					</form>
+					<br /> <a th:href="@{'/output'}">新規登録はこちら</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
