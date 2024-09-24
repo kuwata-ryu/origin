@@ -14,17 +14,17 @@ import jakarta.persistence.Table;
 public class UserList {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
-	private Integer id;
+	@Column(name = "user_id")
+	private Integer userId;
 	@Column(name = "name")
 	private String name;
 	@Column(name = "pass")
 	private String pass;
-	public Integer getId() {
-		return id;
+	public Integer getUserId() {
+		return userId;
 	}
-	public void setId(Integer id) {
-		this.id = id;
+	public void setUserId(Integer userId) {
+		this.userId = userId;
 	}
 	public String getName() {
 		return name;

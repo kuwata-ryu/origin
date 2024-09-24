@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import schoo.entity.Event;
 import schoo.entity.UserList;
 import schoo.repository.UserListRepository;
 
@@ -36,6 +37,14 @@ public class UserListService {
 	}
 	public Optional<UserList> searchUserById(String name){
 		return userListRepository.findByName(name);
+	}
+
+	/**
+	 * 指定されたイベントIDからDBに登録されているイベント情報を検索します.
+	 * @return イベント一覧
+	 */
+	public List<UserList> findByUserId(Integer userId){
+		return userListRepository.findByUserId(userId);
 	}
 	/*
 	 * public void delete(Integer id) { userListRepository.deleteById(id); }

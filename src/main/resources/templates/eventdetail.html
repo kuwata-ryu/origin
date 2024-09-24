@@ -26,8 +26,8 @@
 							<tr>
 								<td th:text="${event.eventId}"></td>
 								<td th:text="${event.eventName}"></td>
-								<td th:text="${event.eventDate}"></td>
-								<td th:text="${event.eventVenue}"></td>
+								<td th:text="${event.eventStartDate}"></td>
+								<td th:text="${event.eventEndDate}"></td>
 							</tr>
 						</table>
 
@@ -35,14 +35,12 @@
 						<table class="table table-striped">
 							<tr>
 								<th>参加者ID</th>
-								<th>参加者名</th>
 							</tr>
 							<!-- Thymeleafの繰り返し処理 -->
 							<!-- modelにparticipantListというキーでセットされてきたリストを繰り返しで表示 -->
 							<!-- リスト（配列）のparticipantListから1ずつ要素を取得してparticipant（変数）に格納 -->
-							<tr th:each="participant : ${participantList}">
-								<td th:text="${participant.participantId}"></td>
-								<td th:text="${participant.participantName}"></td>
+							<tr th:each="participant : ${userList}">
+								<td th:text="${participant.userName}"></td>
 							</tr>
 						</table>
 						<br>

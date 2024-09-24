@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<!-- 今回のサンプルで使用しているCSS（bootstrap）の読み込み -->
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css"
+	integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B"
+	crossorigin="anonymous">
+<title>output</title>
+</head>
+<body>
+	<div style="text-align: right">
+		<table class="table table-striped">
+			<!-- user（UserListクラス）のgetNameメソッドを実行して名前を画面に表示 -->
+			<tr>
+				<div style="padding-top: 10px; padding-right: 15px;">
+					ユーザー名： <span th:text="${userInfo}" /> <a href="/logout">ログアウト</a>
+				</div>
+			</tr>
+		</table>
+	</div>
+	<div class="login align-items-center py-5">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-9 col-lg-8 mx-auto">
+					<h3 class="login-heading my-4">タスク一覧</h3>
+					<!-- Thymeleafの繰り返し処理 -->
+					<!-- modelにusersというキーでセットされてきたリストを繰り返しで表示 -->
+					<!-- リスト（配列）のusersから1ずつ要素を取得してuser（変数）に格納 -->
+					<table class="table table-striped">
+						<!-- user（UserListクラス）のgetNameメソッドを実行して名前を画面に表示 -->
+						<tr>
+							<th>タスクID</th>
+							<th>タスク名</th>
+							<th>開始予定日</th>
+							<th>終了予定日</th>
+							<th>ファイル</th>
+						</tr>
+						<tr th:each="event : ${eventList}">
+							<td	th:text="${event.eventId}"></td>
+							<td th:text="${event.eventName}"></td>
+							<td th:text="${event.eventStartDate}"></td>
+							<td th:text="${event.eventEndDate}"></td>
+							<td><a th:href="'/image/'+${event.file}"
+								th:download="${event.file}">
+									<div th:if="${event.file}" class="success">
+										<p>ダウンロード</p>
+									</div>
+							</a></td>
+						</tr>
+					</table>
+					<br>
+					<h3 class="login-heading my-4">新しくイベントを登録する</h3>
+					<form action="regist" method="get">
+						<button
+							class="btn btn-lg btn-primary btn-block btn-login font-weight-bold mb-2"
+							type="submit">新規登録</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

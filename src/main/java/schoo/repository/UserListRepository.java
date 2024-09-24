@@ -14,4 +14,5 @@ import schoo.entity.UserList;
 @Repository
 public interface UserListRepository extends JpaRepository<UserList, Integer> {
 	Optional<UserList> findByName(String name);
+	List<UserList> findByUserId(Integer userId);
 }
