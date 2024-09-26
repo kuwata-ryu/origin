@@ -26,6 +26,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import schoo.entity.Event;
 import schoo.entity.ImageEntity;
+import schoo.form.DaysForm;
 import schoo.form.EventForm;
 import schoo.form.UserListForm;
 import schoo.repository.ImageRepository;
@@ -119,6 +120,58 @@ public class SchooController {
 	@GetMapping("/output")
 	public String output(Model model) {
 		return "output";
+	}
+	@GetMapping("/down")
+	public String down(Model model,DaysForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+		HttpSession session = request.getSession();
+		int month=0;
+		if(session.getAttribute("month1")!=null) {
+		month = (int)session.getAttribute("month1");
+		}else {
+			month = 1;
+			}
+		if(month>1) {
+			month=month-1;
+		}else {month = 1;}
+			form.setMonth(month);
+		session.setAttribute("month1", form.getMonth());
+		if(form.getMonth()>0) {
+		model.addAttribute("month",Integer.toString(form.getMonth()));
+		}
+		return "taskList";
+	}
+	@GetMapping("/up")
+	public String up(Model model,DaysForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+		HttpSession session = request.getSession();
+		int month=0;
+		if(session.getAttribute("month1")!=null) {
+		month = (int)session.getAttribute("month1");
+		}else {
+			month = 1;
+			}
+		if(month<12) {
+			month=month+1;
+		}else {
+			month = 12;
+			}
+			form.setMonth(month);
+		session.setAttribute("month1", form.getMonth());
+		if(form.getMonth()<13) {
+			model.addAttribute("month",Integer.toString(form.getMonth()));
+			}
+		return "taskList";
+	}
+	
+	@GetMapping("/taskList")
+	public String taskList(Model model,UserListForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		HttpSession session = request.getSession();
+		session.setAttribute("month1", 1);
+		model.addAttribute("month",session.getAttribute("month1"));
+		String[] taskList = new String[30];
+		
+		model.addAttribute("userInfo", session.getAttribute("session1"));
+		model.addAttribute("taskList", taskList);
+		return "taskList";
 	}
 
 	/*
