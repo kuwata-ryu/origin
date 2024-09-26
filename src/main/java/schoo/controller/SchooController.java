@@ -20,9 +20,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import schoo.entity.Event;
 import schoo.entity.ImageEntity;
-import schoo.entity.UserList;
 import schoo.form.EventForm;
 import schoo.form.UserListForm;
 import schoo.repository.ImageRepository;
@@ -61,23 +64,25 @@ public class SchooController {
 	 */
 
 	@PostMapping("/login")
-	public String login(Model model, UserListForm form) {
+	public String login(Model model, UserListForm form, HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		HttpSession session = request.getSession();
+		session.setAttribute("session1", form.getName());
 		var userInfo = userListService.searchUserById(form.getName());
-		var isCorrectUserAuth = userInfo.isPresent() 
-				&& form.getPass().equals(userInfo.get().getPass());
-		if(isCorrectUserAuth) {
+		session.setAttribute("session2", userInfo.get().getUserId());
+		var isCorrectUserAuth = userInfo.isPresent() && form.getPass().equals(userInfo.get().getPass());
+		if (isCorrectUserAuth) {
 			List<Event> eventList = eventService.findAll();
 			model.addAttribute("eventList", eventList);
-			model.addAttribute("userInfo", form.getName());
-			return "eventList";
-		}else {
-			model.addAttribute("errorMsg","名前とPASSの組み合わせが間違っています。");
+			model.addAttribute("userInfo", session.getAttribute("session1"));
+			return "redirect:eventList";
+		} else {
+			model.addAttribute("errorMsg", "名前とPASSの組み合わせが間違っています。");
 			return "login";
 		}
 	}
 
 	@PostMapping("add")
-	public String addUser(Model model,@Validated UserListForm userListForm, BindingResult bindingResult) {
+	public String addUser(Model model, @Validated UserListForm userListForm, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			return "validated";
 		}
@@ -85,18 +90,19 @@ public class SchooController {
 		String pass2 = userListForm.getPass2();
 		if (pass.equals(pass2)) {
 			userListService.save(userListForm.getName(), pass);
-			model.addAttribute("addMsg","新規登録が完了しました。");
+			model.addAttribute("addMsg", "新規登録が完了しました。");
 			return "login";
 		} else {
-			return "ng";
+			model.addAttribute("errorMsg", "入力内容が間違っています。");
+			return "output";
 		}
 	}
-	
+
 	@GetMapping("/logout")
 	public String logout(Model model) {
 		return "redirect:/";
 	}
-	
+
 	@GetMapping("/output")
 	public String output(Model model) {
 		return "output";
@@ -106,8 +112,8 @@ public class SchooController {
 	 * @GetMapping("delete") public String deleteUser(@RequestParam Integer id) { //
 	 * 指定されたIDを引数に削除処理へ userListService.delete(id); return "redirect:/"; }
 	 */
-	
-	//以下はイベント管理ツールから引用
+
+	// 以下はイベント管理ツールから引用
 	@Autowired
 	EventService eventService;
 	@Autowired
@@ -115,18 +121,22 @@ public class SchooController {
 
 	/**
 	 * トップページ（イベント一覧画面）を表示します.
+	 * 
 	 * @param model
 	 * @return イベント一覧画面のパス
 	 */
 	@GetMapping("eventList")
-	public String eventList(Model model) {
-		List<Event> eventList = eventService.findAll();
+	public String eventList(Model model,UserListForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		HttpSession session = request.getSession();
+		List<Event> eventList = eventService.findByUserId((int) session.getAttribute("session2"));
+		model.addAttribute("userInfo", session.getAttribute("session1"));
 		model.addAttribute("eventList", eventList);
 		return "eventList";
 	}
 
 	/**
 	 * イベントの登録画面を表示します.
+	 * 
 	 * @param model
 	 * @return イベント登録画面のパス
 	 */
@@ -137,74 +147,63 @@ public class SchooController {
 	}
 
 	/**
-	 * 指定されたイベントIDの詳細画面を表示します.
-	 * @param eventId イベントID
-	 * @param model
-	 * @return イベント詳細画面のパス
-	 */
-	@GetMapping("entry/{userId}")
-	public String entry(@PathVariable("userId") Integer userId,
-						Model model) {
-		// 引数で受け取ったイベントIDからイベントの情報を取得
-		// イベントの情報は1件の前提で処理
-		List<UserList> user = userListService.findByUserId(userId);
-
-		// modelに結果をセット
-		model.addAttribute("user", user.get(0));
-
-		// 引数で受け取ったイベントIDからイベントの参加者情報を取得
-		List<Event> eventList =
-			userEntryService.findByUserId(userId);
-
-		// modelに結果をセット
-		model.addAttribute("eventList", eventList);
-
-		// 次に表示する画面のパス（htmlファイルの名称）を返却
-		return "userdetail";
-	}
-
-	/**
 	 * イベントの登録処理です.
+	 * 
 	 * @param eventForm イベント情報
-	 * @return	イベント一覧画面のパス（output.htmlへのリダイレクト）
+	 * @return イベント一覧画面のパス（output.htmlへのリダイレクト）
 	 */
 	@Autowired
-    private ImageRepository imageRepository;
+	private ImageRepository imageRepository;
 
-    private static final String UPLOAD_DIR = "/Users/桑田 龍/eclipse-workspace/ProgressManagement/src/main/resources/static/image"; // アップロード先のディレクトリ
+	private static final String UPLOAD_DIR = "/Users/桑田 龍/eclipse-workspace/ProgressManagement/src/main/resources/static/image"; // アップロード先のディレクトリ
+
+	@SuppressWarnings("resource")
 	@PostMapping("eventregist")
-	public String registrationEvent(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes,@ModelAttribute EventForm eventForm) {
-		
+	public String registrationEvent(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes,
+			@ModelAttribute EventForm eventForm,HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		try {
-            // アップロードディレクトリが存在しない場合、作成
-            File uploadDir = new File(UPLOAD_DIR);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
-            }
+			// アップロードディレクトリが存在しない場合、作成
+			File uploadDir = new File(UPLOAD_DIR);
+			if (!uploadDir.exists()) {
+				uploadDir.mkdirs();
+			}
 
-            // 画像ファイルの保存先パス
-            String filePath = UPLOAD_DIR + File.separator + file.getOriginalFilename();
+			if (file.getOriginalFilename() != "") {
+				// 画像ファイルの保存先パス
+				String filePath = UPLOAD_DIR + File.separator + file.getOriginalFilename();
 
-            // 画像ファイルをディスクに保存
-            Path destination = new File(filePath).toPath();
-            Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
+				// 画像ファイルをディスクに保存
+				Path destination = new File(filePath).toPath();
+				Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
 
-            // データベースにファイルメタデータを保存
-            ImageEntity imageEntity = new ImageEntity();
-            imageEntity.setName(file.getOriginalFilename());
-            imageEntity.setFilePath(filePath);
-    		eventForm.setFilePath(file.getOriginalFilename());
-            imageRepository.save(imageEntity);
-         // フォームから値を取得してデータベース登録処理へ
-    		eventService.save(eventForm);
+				// データベースにファイルメタデータを保存
+				ImageEntity imageEntity = new ImageEntity();
+				imageEntity.setName(file.getOriginalFilename());
+				imageEntity.setFilePath(filePath);
+				eventForm.setFilePath(file.getOriginalFilename());
+				imageRepository.save(imageEntity);
+			}
+			// フォームから値を取得してデータベース登録処理へ
+			HttpSession session = request.getSession();
+			eventForm.setUserId((int) session.getAttribute("session2"));
+			eventService.save(eventForm);
 
-            redirectAttributes.addFlashAttribute("message", "File uploaded successfully!");
-        } catch (IOException e) {
-            redirectAttributes.addFlashAttribute("uperror", "Failed to upload file: " + e.getMessage());
-        }
+			redirectAttributes.addFlashAttribute("message", "File uploaded successfully!");
+		} catch (IOException e) {
+			System.out.println("IOExceptionエラー");
+			redirectAttributes.addFlashAttribute("uperror", "Failed to upload file: " + e.getMessage());
+		}
 
 		// 次に表示する画面のパス（リダイレクト先のページ）を返却
+		return "redirect:eventList";
+	}
+	
+	//タスク削除
+	@GetMapping("delete")
+	public String deleteEvent(@RequestParam Integer eventId) {
+		// 指定されたIDを引数に削除処理へ
+		eventService.delete(eventId);
 		return "redirect:eventList";
 	}
 }

@@ -36,6 +36,7 @@
 							<th>開始予定日</th>
 							<th>終了予定日</th>
 							<th>ファイル</th>
+							<th>削除</th>
 						</tr>
 						<tr th:each="event : ${eventList}">
 							<td	th:text="${event.eventId}"></td>
@@ -48,6 +49,7 @@
 										<p>ダウンロード</p>
 									</div>
 							</a></td>
+							<td><a th:href="@{delete(eventId=${event.eventId})}">削除</a></td>
 						</tr>
 					</table>
 					<br>

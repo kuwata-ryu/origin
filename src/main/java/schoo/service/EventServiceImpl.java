@@ -1,6 +1,5 @@
 package schoo.service;
 
-import java.io.File;
 import java.sql.Date;
 import java.util.List;
 
@@ -8,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import schoo.entity.Event;
-import schoo.entity.ImageEntity;
 import schoo.form.EventForm;
 import schoo.repository.EventRepository;
 
@@ -45,13 +43,23 @@ public class EventServiceImpl implements EventService {
 	public void save(EventForm eventForm) {
 		// EventForm内の情報をEventクラスに詰め替え
 		Event event = new Event();
-		ImageEntity imageEntity= new ImageEntity();
 		event.setEventName(eventForm.getEventName());
 		event.setEventStartDate(Date.valueOf(eventForm.getEventStartDate()));
 		event.setEventEndDate(Date.valueOf(eventForm.getEventEndDate()));
 		event.setFile(eventForm.getFilePath());
+		event.setUserId(eventForm.getUserId());
 
 		// Eventクラスの情報を使ってDBに登録する処理を実行
 		eventRepository.save(event);
+	}
+
+	@Override
+	public List<Event> findByUserId(int userId) {
+		// TODO 自動生成されたメソッド・スタブ
+		return eventRepository.findByUserId(userId);
+	}
+	
+	public void delete(Integer eventId) {
+		eventRepository.deleteById(eventId);
 	}
 }

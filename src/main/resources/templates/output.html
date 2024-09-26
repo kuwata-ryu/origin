@@ -26,6 +26,11 @@
 								</div>
 							</div>
 						</div>
+						<div th:if="${errorMsg!=null}">
+							<font color="red"><div><span th:text="${errorMsg}"></span>
+							</div></font>
+							<br>
+						</div>
 						<div class="form-label-group">
 							<label for="name">名前</label> <input type="text" id="name"
 								name="name" class="form-control" maxlength="20"

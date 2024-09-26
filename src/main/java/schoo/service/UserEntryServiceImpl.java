@@ -10,9 +10,7 @@ import schoo.entity.UserEntry;
 import schoo.entity.Event;
 import schoo.form.UserEntryForm;
 import schoo.repository.UserEntryRepository;
-import schoo.repository.UserListRepository;
 import schoo.repository.EventRepository;
-import schoo.repository.UserEntryRepository;
 
 /**
  * イベント参加者のService実装クラスです.

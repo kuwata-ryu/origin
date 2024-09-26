@@ -23,4 +23,12 @@ public interface EventService {
 	 * イベント情報をDBに登録します.
 	 */
 	public void save(EventForm eventForm);
+	/**
+	 * 指定されたイベントIDからDBに登録されているイベント情報を検索します.
+	 * @return イベント一覧
+	 */
+	public List<Event> findByUserId(int userId);
+	
+	//タスク削除
+	public void delete(Integer eventId);
 }

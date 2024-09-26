@@ -39,6 +39,9 @@ public class Event {
 	// イベント名
 	@Column(name = "file")
 	private String file;
+	// ユーザーID
+	@Column(name = "user_id")
+	private Integer userId;
 	
 	public Integer getEventId() {
 		return eventId;
@@ -69,5 +72,11 @@ public class Event {
 	}
 	public void setFile(String file) {
 		this.file = file;
+	}
+	public Integer getUserId() {
+		return userId;
+	}
+	public void setUserId(Integer userId) {
+		this.userId = userId;
 	}
 }
