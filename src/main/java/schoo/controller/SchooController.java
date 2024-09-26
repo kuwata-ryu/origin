@@ -64,7 +64,8 @@ public class SchooController {
 	 */
 
 	@PostMapping("/login")
-	public String login(Model model, UserListForm form, HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+	public String login(Model model, UserListForm form, HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		HttpSession session = request.getSession();
 		session.setAttribute("session1", form.getName());
 		var userInfo = userListService.searchUserById(form.getName());
@@ -82,18 +83,27 @@ public class SchooController {
 	}
 
 	@PostMapping("add")
-	public String addUser(Model model, @Validated UserListForm userListForm, BindingResult bindingResult) {
+	public String addUser(Model model, @Validated UserListForm userListForm, BindingResult bindingResult)
+			throws IOException {
 		if (bindingResult.hasErrors()) {
 			return "validated";
 		}
+		System.out.println("ユーザー名"+userListForm.getName());
 		String pass = userListForm.getPass();
 		String pass2 = userListForm.getPass2();
-		if (pass.equals(pass2)) {
-			userListService.save(userListForm.getName(), pass);
-			model.addAttribute("addMsg", "新規登録が完了しました。");
-			return "login";
+		var userInfo = userListService.searchUserById(userListForm.getName());
+		var isCorrectUserAuth = userInfo.isPresent();
+		if (isCorrectUserAuth) {
+			if (pass.equals(pass2)) {
+				userListService.save(userListForm.getName(), pass);
+				model.addAttribute("addMsg", "新規登録が完了しました。");
+				return "login";
+			} else {
+				model.addAttribute("errorMsg", "入力内容が間違っています。");
+				return "output";
+			}
 		} else {
-			model.addAttribute("errorMsg", "入力内容が間違っています。");
+			model.addAttribute("errorMsg", "このユーザー名はすでに使用されています。");
 			return "output";
 		}
 	}
@@ -126,7 +136,8 @@ public class SchooController {
 	 * @return イベント一覧画面のパス
 	 */
 	@GetMapping("eventList")
-	public String eventList(Model model,UserListForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public String eventList(Model model, UserListForm form, HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		HttpSession session = request.getSession();
 		List<Event> eventList = eventService.findByUserId((int) session.getAttribute("session2"));
 		model.addAttribute("userInfo", session.getAttribute("session1"));
@@ -160,8 +171,9 @@ public class SchooController {
 	@SuppressWarnings("resource")
 	@PostMapping("eventregist")
 	public String registrationEvent(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes,
-			@ModelAttribute EventForm eventForm,HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+			@ModelAttribute EventForm eventForm, HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
 		try {
 			// アップロードディレクトリが存在しない場合、作成
 			File uploadDir = new File(UPLOAD_DIR);
@@ -198,8 +210,8 @@ public class SchooController {
 		// 次に表示する画面のパス（リダイレクト先のページ）を返却
 		return "redirect:eventList";
 	}
-	
-	//タスク削除
+
+	// タスク削除
 	@GetMapping("delete")
 	public String deleteEvent(@RequestParam Integer eventId) {
 		// 指定されたIDを引数に削除処理へ
